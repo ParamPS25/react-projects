@@ -1,7 +1,7 @@
 export function Tabs(props){
 
     const tabs = ["All","Open","Completed"]
-    const {todos} = props
+    const {selectedTab,setSelectedTab,todos} = props
     return(
         <nav className="tab-container">
             {/* if tab = "all" => display length of tasks irrespective of if it is complete or not 
@@ -13,12 +13,16 @@ export function Tabs(props){
                             todos.filter((val) => !val.complete).length :
                             todos.filter((val) => val.complete).length
                 return(
-                    <button key={tabIndex}
-                    className="tab-button">
+                    // dynamic className to add extra class to only selected tab
+                    <button onClick={()=>{
+                        setSelectedTab(currentTab)
+                        }} key={tabIndex} className = {"tab-button " + 
+                        (currentTab === selectedTab ? 'tab-selected' : ' ') }>                    
                         <h4>{currentTab} <span>{numOfTasks}</span></h4> 
                     </button>
                 )
             }) }
+            <hr />
         </nav>
     )
 }
