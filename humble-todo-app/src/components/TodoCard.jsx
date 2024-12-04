@@ -7,7 +7,7 @@ export function TodoCard(props) {
             <div className="todo-buttons">
                 <button onClick={()=>{
                     handleCompleteTodo(todoIndex)
-                }} >
+                }} disabled={todo.complete}>
                     <h6>Done</h6>
                 </button>
                 <button onClick={()=>{

@@ -4,6 +4,7 @@ import { Header } from "./components/Header"
 import { Tabs } from "./components/Tabs"
 import { TodoInput } from "./components/TodoInput"
 import { TodoList } from "./components/TodoList"
+import { Timer } from "./components/Timer"
 
 function App() {
 
@@ -52,6 +53,8 @@ function App() {
 
         <TodoInput  handleAddTodo = {handleAddTodo}/>
         <Counter />
+        <Timer />
+        
     </>
   )
 }
