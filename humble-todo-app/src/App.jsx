@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState ,useEffect} from "react"
 import { Counter } from "./components/Counter"
 import { Header } from "./components/Header"
 import { Tabs } from "./components/Tabs"
@@ -21,6 +21,7 @@ function App() {
       //cannont mutate original todo so will take copy of prev ...todos and appennd newTodo
       const newTodoList = [...todos , {input : newTodo , complete : false}]
       setTodos(newTodoList)
+      handleSaveData(newTodoList)
   }
 
   // will get the index of todo to be deleted , so filter out all remaining which are != index
@@ -30,6 +31,7 @@ function App() {
           return valIndex !== todoIndex
       })
       setTodos(newTodoList)
+      handleSaveData(newTodoList)
   }
   // return valIndex !== todoIndex:
   // If valIndex is not equal to todoIndex, the expression returns true, meaning the item is kept in the new array.
@@ -41,7 +43,24 @@ function App() {
     completedTodo["complete"] = true 
     newTodoList[todoIndex] = completedTodo
     setTodos(newTodoList)
+    handleSaveData(newTodoList)
   }
+
+  // to save todos in localStorage
+  function handleSaveData(currTodos){
+    localStorage.setItem("todo-key",JSON.stringify({todosObj: currTodos}))
+  }
+
+  // runs only once when the component mounts. It updates the `todos` state with the retrieved data using `setTodos`
+  useEffect(()=>{
+      if(!localStorage || !localStorage.getItem("todo-key")){
+        return;
+      }
+      let db = JSON.parse(localStorage.getItem("todo-key"))
+      //console.log(db.todosObj)
+       setTodos(db.todosObj)    // updates the `todos` state
+  },[]) 
+
   return (
     <>
         <Header todos = {todos} />
