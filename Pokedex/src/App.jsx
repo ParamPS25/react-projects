@@ -6,14 +6,14 @@ import { PokeCard } from './components/PokeCard'
 
 function App() {
 
-  const [selectedPokemon, setSelectedPokemon] = useState(0)
+  const [selectedPokemon, setSelectedPokemon] = useState(1)
   
   return (
     <>
       <Header />
       <SideNav selectedPokemon={selectedPokemon}
         setSelectedPokemon={setSelectedPokemon} />
-      <PokeCard />
+      <PokeCard selectedPokemon={selectedPokemon} />
     </>
   )
 }
