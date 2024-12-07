@@ -1,11 +1,62 @@
 import { useEffect, useState } from "react"
 import { getFullPokedexNumber, getPokedexNumber } from "../utils/index";
 import {TypeCard} from "./TypeCard"
+import { Modal } from "./Modal";
 
 export function PokeCard(props){
     const {selectedPokemon} = props
     const [pokemonData,setPokemonData] = useState(null);
     const [loading,setLoading] = useState(false);
+
+    const [movesDescription, setMovesDescription] = useState(null);
+    
+    async function fetchMovesData(move,moveUrl) {
+        if(loading || !localStorage || !moveUrl) {return}  // guard clause
+
+        let movesCache = {};
+        if(localStorage.getItem("pokemon-moves")){
+            movesCache = JSON.parse(localStorage.getItem("pokemon-moves"))
+        }
+
+        if(move in movesCache){
+            setMovesDescription(movesCache[move])
+            console.log("move found in cache");
+            return ;
+        }
+
+        try{
+            setLoading(true); // to display loading block till data is fetched from api and also to avoid race conditions
+            const res = await fetch(moveUrl);
+            const movesData = await res.json();
+            console.log("fetched moves from api");
+
+            // 1. Check if `moveData` exists and access its `flavor_text_entries` property.
+            // 2. Filter the `flavor_text_entries` array to find objects where `version_group.name` equals 'firered-leafgreen'.
+            // 3. Access the first matching entry using `[0]`.
+            // 4. Use optional chaining to safely access the `flavor_text` property of the first entry.
+            // 5. If no match is found, return `undefined`.
+
+            const description = movesData?.flavor_text_entries.filter(val => {
+                return val.version_group.name == 'firered-leafgreen';   // Match the desired version group
+            })[0]?.flavor_text || "No description available"; // Safely access the flavor_text property
+
+            const resultData = {         // mapping description with move name (not strict as can also be done setMovesDesc(Movename:move,description) as can cause redundency as cache[move] = resultData then move:{move:"",moveName:""})
+                moveName : move,
+                description
+            }
+
+            setMovesDescription(resultData);
+            movesCache[move] = resultData;
+            // movesCache[move] = description
+            localStorage.setItem("pokemon-moves",JSON.stringify(movesCache))  
+
+        }catch(e){
+            console.log(e.message);
+        }finally{
+            setLoading(false);
+        }
+    }
+
 
     const { name, height, abilities, stats, types, moves, sprites } = pokemonData || {}
 
@@ -136,6 +187,41 @@ export function PokeCard(props){
                     )
                 })}
             </div>
+
+            {/* moves */}
+            <h3>Moves</h3>
+            <div className="pokemon-move-grid">
+                {moves.map((movesObj,movesIndex)=>{
+                    const movesName = (movesObj?.move?.name).replaceAll("-"," ");
+                    return(
+                        <button key={movesIndex} className=' pokemon-move'
+                            onClick={()=>{
+                                fetchMovesData(movesName,movesObj?.move?.url)
+                            }} >
+                            {/* <p>{movesObj?.move?.name}</p> */}
+                            <p>{movesName}</p>
+                        </button>
+                    )
+                })}
+            </div>
+            
+            {/* popup/modal to list the description of the moves that gets clicked in PokeCard and modal/popup component gets displayed */} 
+            {/* conditional rendering , if movesDescription is not null then display popup/Modal -> using ReactDom.createPortal (render the modal outside the main DOM hierarchy for better styling and positioning.)*/}
+            {/* so, for closing this -> setMovesDescription(null) => then this will not get rendered as movesDescription will be null  */}
+
+            {movesDescription && (
+                <Modal handleCloseModal = {()=>{setMovesDescription(null)}}>   {/*function prop : allows the child to invoke behavior in the parent, making it dynamic */}
+                    {/*children Prop: Anything passed between the opening and closing <Modal> tags is accessible in the Modal component as children.  */}
+                    <div>
+                        <h5>Name</h5>
+                        <h2 className="skill-name">{movesDescription.moveName.replaceAll("-"," ")}</h2>
+                    </div>
+                    <div>
+                        <h6>Description</h6>
+                        <p>{movesDescription.description}</p>
+                    </div>
+                </Modal>
+            )}
         </div>
     )
 }
