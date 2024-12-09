@@ -118,7 +118,7 @@ export function PokeCard(props){
                 } catch (err) {
                     console.log(err.message);   
                 } finally{
-                    setLoading(true);           // This signals the app that the fetch is complete and the UI can update accordingly
+                    setLoading(false);           // This signals the app that the fetch is complete and the UI can update accordingly
                 }
             }
 
@@ -189,6 +189,7 @@ export function PokeCard(props){
             </div>
 
             {/* moves */}
+            {/* to return moves in alphabatical order -> moves.slice().sort((a,b)=>a.compare(b)).map(...)   => Used to create a shallow copy of the moves array to avoid directly mutating the original array when using sort. This is important because sort modifies the array in place.*/}
             <h3>Moves</h3>
             <div className="pokemon-move-grid">
                 {moves.map((movesObj,movesIndex)=>{
